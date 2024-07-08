@@ -37,7 +37,7 @@
         const userMarkers = {};
 
         function initMap() {
-            const coords = { lat: 49.8584, lng: 3.2945 }; // Coordonnées précises
+            const coords = { lat: 48.8584, lng: 2.2945 }; // Coordonnées précises
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 18,
                 center: coords,
@@ -52,8 +52,14 @@
                 fillOpacity: 0.35,
                 map,
                 center: coords,
-                radius: 5 // 5 cm en mètres
+                radius: 0.05 // 5 cm en mètres
             });
+
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(showPosition, showError, { enableHighAccuracy: true });
+            } else {
+                alert("La géolocalisation n'est pas supportée par ce navigateur.");
+            }
 
             database.ref('users').on('value', (snapshot) => {
                 const users = snapshot.val();
@@ -70,12 +76,6 @@
                     }
                 }
             });
-
-            if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(showPosition, showError, { enableHighAccuracy: true });
-            } else {
-                alert("La géolocalisation n'est pas supportée par ce navigateur.");
-            }
         }
 
         function showPosition(position) {
@@ -126,7 +126,31 @@
                     break;
             }
         }
+
+        function updatePosition(position) {
+            const userId = "unique_user_id"; // Identifiant unique pour chaque utilisateur
+            const userCoords = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            database.ref('users/' + userId).set(userCoords);
+        }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0NnTFyJmPlbbouL2Go02ZD6lKcxA3hM0&libraries=geometry&callback=initMap" async defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        var firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        var database = firebase.database();
+    </script>
 </body>
 </html>
