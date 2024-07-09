@@ -52,8 +52,19 @@
                 fillOpacity: 0.35,
                 map,
                 center: coords,
-                radius: 50 // 5 cm en mètres
+                radius: 50 // 50 mètres
             });
+
+            // Simulation de la base de données Firebase
+            const database = {
+                ref: (path) => ({
+                    on: (event, callback) => {
+                        if (path === 'users' && event === 'value') {
+                            callback({ val: () => ({ user1: { lat: 48.8584, lng: 2.2945 } }) });
+                        }
+                    }
+                })
+            };
 
             database.ref('users').on('value', (snapshot) => {
                 const users = snapshot.val();
