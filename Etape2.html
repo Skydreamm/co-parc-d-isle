@@ -37,7 +37,7 @@
         const userMarkers = {};
 
         function initMap() {
-            const coords = { lat: 49.857209, lng: 3.327744 }; // Coordonnées précises
+            const coords = { lat: 49.837209, lng: 3.307744 }; // Coordonnées précises
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 18,
                 center: coords,
@@ -52,7 +52,7 @@
                 fillOpacity: 0.35,
                 map,
                 center: coords,
-                radius: 5 // 50 mètres
+                radius: 2 // 50 mètres
             });
 
             // Simulation de la base de données Firebase
