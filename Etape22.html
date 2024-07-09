@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carte avec Points Manuels et Codes</title>
+    <title>Page Suivante</title>
     <style>
         body, html {
             margin: 0;
@@ -17,69 +17,76 @@
         }
         #code {
             position: absolute;
-            top: 10px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             background-color: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 20px;
+            border-radius: 10px;
             display: none;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
-    <div id="code">Codes secrets : <span id="codeText"></span></div>
+    <div id="code">Quel est le nom de l épreuve où les athlètes lancent une lance métallique le plus loin possible ?</div>
 
     <script>
-        let map;
-        let userMarker;
-
-        const locations = [
-            { lat: 49.83684, lng: 3.30705, code: 'CODE1' },
-            { lat: 49.83740, lng: 3.30809, code: 'CODE2' },
-            { lat: 49.83646, lng: 3.30812, code: 'CODE3' },
-            // Ajoutez ici vos 47 autres coordonnées et codes
-            // { lat: xx.xxxx, lng: xx.xxxx, code: 'CODEX' },
-        ];
+        let map, circle, userMarker;
+        const userMarkers = {};
 
         function initMap() {
+            const coords = { lat: 49.837209, lng: 3.307744 }; // Coordonnées précises
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 18,
-                center: locations[0], // Centre de la carte sur le premier point
-                mapTypeId: 'roadmap'
+                center: coords,
+                mapTypeId: 'satellite'
             });
 
-            addMarkersAndCircles(locations);
+            circle = new google.maps.Circle({
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#FF0000',
+                fillOpacity: 0.35,
+                map,
+                center: coords,
+                radius: 2 // 50 mètres
+            });
+
+            // Simulation de la base de données Firebase
+            const database = {
+                ref: (path) => ({
+                    on: (event, callback) => {
+                        if (path === 'users' && event === 'value') {
+                            callback({ val: () => ({ user1: { lat: 48.8584, lng: 2.2945 } }) });
+                        }
+                    }
+                })
+            };
+
+            database.ref('users').on('value', (snapshot) => {
+                const users = snapshot.val();
+                for (const userId in users) {
+                    const userCoords = users[userId];
+                    if (userMarkers[userId]) {
+                        userMarkers[userId].setPosition(new google.maps.LatLng(userCoords.lat, userCoords.lng));
+                    } else {
+                        userMarkers[userId] = new google.maps.Marker({
+                            position: new google.maps.LatLng(userCoords.lat, userCoords.lng),
+                            map: map,
+                            title: "User: " + userId
+                        });
+                    }
+                }
+            });
 
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(showPosition, showError, { enableHighAccuracy: true });
             } else {
                 alert("La géolocalisation n'est pas supportée par ce navigateur.");
             }
-        }
-
-        function addMarkersAndCircles(locations) {
-            locations.forEach((location) => {
-                // Ajouter un marqueur pour chaque emplacement
-                new google.maps.Marker({
-                    position: location,
-                    map: map
-                });
-
-                // Ajouter un cercle de 2 mètres de rayon pour chaque emplacement
-                location.circle = new google.maps.Circle({
-                    strokeColor: '#FF0000',
-                    strokeOpacity: 0.8,
-                    strokeWeight: 2,
-                    fillColor: '#FF0000',
-                    fillOpacity: 0.35,
-                    map: map,
-                    center: location,
-                    radius: 400 // 2 mètres
-                });
-            });
         }
 
         function showPosition(position) {
@@ -100,21 +107,12 @@
 
             map.setCenter(userCoords);
 
-            let codes = [];
+            const distance = google.maps.geometry.spherical.computeDistanceBetween(
+                new google.maps.LatLng(userCoords.lat, userCoords.lng),
+                circle.getCenter()
+            );
 
-            locations.forEach((location) => {
-                const distance = google.maps.geometry.spherical.computeDistanceBetween(
-                    new google.maps.LatLng(userCoords.lat, userCoords.lng),
-                    location.circle.getCenter()
-                );
-
-                if (distance <= location.circle.getRadius()) {
-                    codes.push(location.code);
-                }
-            });
-
-            if (codes.length > 0) {
-                document.getElementById('codeText').innerText = codes.join(', ');
+            if (distance <= circle.getRadius()) {
                 document.getElementById('code').style.display = 'block';
             } else {
                 document.getElementById('code').style.display = 'none';
