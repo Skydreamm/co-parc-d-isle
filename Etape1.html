@@ -52,8 +52,19 @@
                 fillOpacity: 0.35,
                 map,
                 center: coords,
-                radius: 0.05 // 5 cm en mètres
+                radius: 10 // 5 mètres
             });
+
+            // Simulation de la base de données Firebase
+            const database = {
+                ref: (path) => ({
+                    on: (event, callback) => {
+                        if (path === 'users' && event === 'value') {
+                            callback({ val: () => ({ user1: { lat: 48.8584, lng: 2.2945 } }) });
+                        }
+                    }
+                })
+            };
 
             database.ref('users').on('value', (snapshot) => {
                 const users = snapshot.val();
@@ -107,7 +118,7 @@
                 document.getElementById('code').style.display = 'none';
             }
 
-            updatePosition(position);
+            updatePosition(userCoords);
         }
 
         function showError(error) {
@@ -125,6 +136,12 @@
                     alert("Une erreur inconnue est survenue.");
                     break;
             }
+        }
+
+        function updatePosition(position) {
+            // Fonction pour mettre à jour la position de l'utilisateur dans la base de données
+            // Par exemple, ici vous pouvez envoyer les nouvelles coordonnées à votre serveur
+            console.log("Position mise à jour : ", position);
         }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt2I0f_PeVvfRj7MaIO2V_17hBeovo8OE&libraries=geometry&callback=initMap" async defer></script>
