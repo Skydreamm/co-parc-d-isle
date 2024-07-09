@@ -52,7 +52,7 @@
                 fillOpacity: 0.35,
                 map,
                 center: coords,
-                radius: 5 // 5 cm en mètres
+                radius: 50 // 5 cm en mètres
             });
 
             database.ref('users').on('value', (snapshot) => {
@@ -107,7 +107,7 @@
                 document.getElementById('code').style.display = 'none';
             }
 
-            updatePosition(position);
+            updatePosition(userCoords);
         }
 
         function showError(error) {
@@ -125,6 +125,12 @@
                     alert("Une erreur inconnue est survenue.");
                     break;
             }
+        }
+
+        function updatePosition(position) {
+            // Fonction pour mettre à jour la position de l'utilisateur dans la base de données
+            // Par exemple, ici vous pouvez envoyer les nouvelles coordonnées à votre serveur
+            console.log("Position mise à jour : ", position);
         }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt2I0f_PeVvfRj7MaIO2V_17hBeovo8OE&libraries=geometry&callback=initMap" async defer></script>
