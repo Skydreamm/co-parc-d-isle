@@ -30,14 +30,14 @@
 </head>
 <body>
     <div id="map"></div>
-    <div id="code">Quel est le nom de l épreuve où les athlètes lancent une lance métallique le plus loin possible ?</div>
+    <div id="code">Quelle est la durée d'un match de football olympique, y compris le temps additionnel ?</div>
 
     <script>
         let map, circle, userMarker;
         const userMarkers = {};
 
         function initMap() {
-            const coords = { lat: 49.837209, lng: 3.307744 }; // Coordonnées précises
+            const coords = { lat: 49.848, lng: 3.31546 }; // Coordonnées précises
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 18,
                 center: coords,
@@ -52,7 +52,7 @@
                 fillOpacity: 0.35,
                 map,
                 center: coords,
-                radius: 2 // 50 mètres
+                radius: 5 // 50 mètres
             });
 
             // Simulation de la base de données Firebase
@@ -60,7 +60,7 @@
                 ref: (path) => ({
                     on: (event, callback) => {
                         if (path === 'users' && event === 'value') {
-                            callback({ val: () => ({ user1: { lat: 48.8584, lng: 2.2945 } }) });
+                            callback({ val: () => ({ }) });
                         }
                     }
                 })
